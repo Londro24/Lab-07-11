@@ -30,6 +30,18 @@ fn create_blank_file(path: &Path){
 }
 
 
+fn is_entero_positivo(numero: &str) -> bool {
+    for digit in numero.to_string().trim().chars(){
+        if digit.is_numeric(){
+            continue
+        } else {
+            return false
+        }
+    }
+    return true
+}
+
+
 fn open_file_to_append(path: &Path) -> File{
     open_file(path);
     let mut binding = OpenOptions::new();
@@ -59,95 +71,156 @@ fn open_file(path: &Path) -> String{
 
 
 fn menu() -> u32 {
-    let mut entrada: String = "".to_string();
-    let mut _numero_de_entrada: u32 = 0;
-    println!("mucho texto");
-    
+    let mut entrada: String = String::new();
     loop {
+        println!("Elija opción:");
+        println!("(1) Agregar un medicamento nuevo");
+        println!("(2) Consular precio por código del medicamento");
+        println!("(3) Listar medicamentos por laboratorio");
+        println!("(4) Listar medicamentos por nombre");
+        println!("(0) Salir");
         stdin().read_line(&mut entrada).unwrap();
-        _numero_de_entrada = entrada.trim().parse().unwrap();
 
-        match _numero_de_entrada {
-            0|1|2|3|4 => break,
-            _ => continue
+        if !is_entero_positivo(&entrada) || entrada.trim() == "".to_string() {
+            entrada = "".to_string();
+            continue
         }
-        println!("error")
-    }
-    
-    return _numero_de_entrada;
+
+        match entrada.trim().parse().unwrap() {
+            0|1|2|3|4 => break,
+            _ => entrada = "".to_string()
+        }
+        println!("\nIntentelo denuevo\n");
+        continue
+    }   
+    let num: u32 = entrada.trim().parse().unwrap();
+    return num
 }
 
 
-fn menu_again() -> u32 {
-    let mut entrada: String = "".to_string();
-    let mut _numero_de_entrada: u32 = 0;
-    println!("otro");
-    
-    loop {
-        stdin().read_line(&mut entrada).unwrap();
-        _numero_de_entrada = entrada.trim().parse().unwrap();
+fn pedir_medicamento() -> String {
+    let mut linea = "".to_string();
+       
+    for i in 0..5 {
+        loop {
+            let mut temp: String = String::new();
+            match i {
+                0 => println!("Escriba el CÓDIGO del producto") ,
+                1 => println!("Escriba el NOMBRE del producto"),
+                2 => println!("Escriba el COMPONENTE PRINCIPAL del producto"),
+                3 => println!("Escriba el PRECIO del producto"),
+                4 => println!("Escriba el LABORATORIO del producto"),
+                _ => continue
+            };
+            stdin().read_line(&mut temp).unwrap();
 
-        match _numero_de_entrada {
-            0|1|2|3|4 => break,
-            _ => continue
+            if temp.trim() == "".to_string() {
+                continue
+            }
+
+            if i == 3 {
+                if is_entero_positivo(&temp) {
+                    linea = linea + &format!("{}", &temp.trim());
+                    break
+                } else {
+                    continue
+                }
+            }
+
+            linea = linea + &format!("{}", &temp.trim().to_uppercase());
+            break
         }
-        println!("error")
+        if i != 4 {
+            linea = linea + ":";
+        }
     }
-    /*
+    return linea
+}
 
-     */
-    return _numero_de_entrada;
+
+fn revisar(text: &str, linea: &str) -> bool {
+    for lineas in text.split("\n") {
+        for dato in lineas.split(":") {
+            for a in linea.split(":") {
+                if dato == a {
+                    if linea.trim() == lineas.trim(){
+                        break
+                    } else {
+                        return false
+                    }
+                } else {
+                    break
+                }
+            }
+            break
+        }
+    }
+    return true
 }
 
 
 fn agregar_medicamento(path: &Path) {
-    let file = open_file_to_append(path);
-    let mut temp: String = String::new();
-    }   
-
     loop {
-        for i in 0..5 {
-            stdin().read_line(&mut temp).unwrap();
-
-            match i {
-                0 => format!("")
-                
-            }
-            /*
-            codigo: String,
-            nombre: String,
-            componente: String,
-            precio: u32,
-            lab: String
-            */
+        let linea: String = pedir_medicamento().to_string();
+        let text: String = open_file(path);
+        if revisar(&text, &linea) {
+            let mut file: File = open_file_to_append(path);
+  
+            file.write_all(linea.as_bytes()).unwrap();
+            file.write_all(b"\n").unwrap();
+            break
         }
-        break;
-    }
-
-    println!("denme dinero")
+        println!("\nMedicamento no válido\n")
+    }    
 }
 
 
 fn consultar_precio(path: &Path) {
+    let mut codigo: String = String::new();
 
+    println!("Escriba el CÓDIGO del medicamento");
+    stdin().read_line(&mut codigo).unwrap();
+    codigo = codigo.to_uppercase();
+
+    let text: String = open_file(path);
+    let mut es_medicamento = false;
+    for a in text.split("\n") {
+        let mut contador = 0;
+        es_medicamento = false;
+        for b in a.split(":") {
+            if contador == 0 && b == codigo.trim() {
+                es_medicamento = true;
+            }
+            if contador == 3 && es_medicamento {
+                println!("\nEl precio es: ${}\n", b)
+            }
+            contador += 1;
+        }
+        if es_medicamento {
+            break
+        }
+    }
+    if !es_medicamento {
+        println!("\nMedicamento no encontrado\n")
+    }
 }
 
 
 fn listar_laboratorio(path: &Path) {
-
+    println!("Yametekudasai")
 }
 
 
 fn listar_nombre(path: &Path) {
-
+    println!("Yametekudasai")
 }
 
 
 fn main() {
     let path: &Path = Path::new("base_de_datos.txt");
-    let mut opcion = menu();
 
     loop {
+        let opcion = menu();
         match opcion {
             1 => agregar_medicamento(path),
             2 => consultar_precio(path),
@@ -155,7 +228,5 @@ fn main() {
             4 => listar_nombre(path),
             _ => break
         }
-
-        opcion = menu_again()
     }
 }
