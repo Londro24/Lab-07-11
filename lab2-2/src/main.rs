@@ -52,7 +52,7 @@ fn open_file_to_append(path: &Path) -> File{
     };
     return file
 }
-
+// Abre el archivo para agregar texto y devuelve archivo
 
 fn open_file(path: &Path) -> String{
     let mut text = "".to_string();
@@ -67,7 +67,7 @@ fn open_file(path: &Path) -> String{
     }
     return text
 }
-
+// Revisa si existe el archivo
 
 fn menu() -> u32 {
     let mut entrada: String = String::new();
@@ -95,7 +95,7 @@ fn menu() -> u32 {
     let num: u32 = entrada.trim().parse().unwrap();
     return num
 }
-
+// Se elije la función a realizar
 
 fn pedir_medicamento() -> String {
     let mut linea = "".to_string();
