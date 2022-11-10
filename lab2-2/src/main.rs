@@ -40,7 +40,7 @@ fn is_entero_positivo(numero: &str) -> bool {
     }
     return true
 }
-// Revisa si es un numero entero
+// Revisa si es un numero entero positivo
 
 fn open_file_to_append(path: &Path) -> File{
     open_file(path);
@@ -73,11 +73,11 @@ fn menu() -> u32 {
     let mut entrada: String = String::new();
     loop {
         println!("Elija opción:");
-        println!("(1) Agregar un medicamento nuevo");
-        println!("(2) Consular precio por código del medicamento");
-        println!("(3) Listar medicamentos por laboratorio");
-        println!("(4) Listar medicamentos por nombre");
-        println!("(0) Salir");
+        println!("    (1) Agregar un medicamento nuevo.");
+        println!("    (2) Consular precio por código del medicamento.");
+        println!("    (3) Listar medicamentos por laboratorio.");
+        println!("    (4) Listar medicamentos por nombre.");
+        println!("    (0) Salir.");
         stdin().read_line(&mut entrada).unwrap();
         //
         if !is_entero_positivo(&entrada) || entrada.trim() == "".to_string() {
@@ -122,6 +122,7 @@ fn pedir_medicamento() -> String {
                     linea = linea + &format!("{}", &temp.trim());
                     break
                 } else {
+                    println!("\nPrecio no válido\n");
                     continue
                 }
             }
@@ -158,6 +159,35 @@ fn revisar(text: &str, linea: &str) -> bool {
 }
 
 
+fn crear_structure_med(linea: &str) -> Medicamento {
+    let mut med: Medicamento = Default::default();
+    let mut contador = 0;
+
+    for b in linea.split(":") {
+        match contador {
+            0 => med.codigo = b.to_string(),
+            1 => med.nombre = b.to_string(),
+            2 => med.componente = b.to_string(),
+            3 => med.precio = b.to_string(),
+            4 => med.lab = b.to_string(),
+            _ => continue 
+        }
+        contador += 1;
+    }
+    return med
+}
+
+
+fn imprimir_medicamento(med: Medicamento) {
+    println!("Código: {}", med.codigo);
+    println!("Nombre: {}", med.nombre);
+    println!("Componente: {}", med.componente);
+    println!("Precio: {}", med.precio);
+    println!("Laboratorio: {}\n", med.lab)
+
+}
+
+
 fn agregar_medicamento(path: &Path) {
     loop {
         let linea: String = pedir_medicamento().to_string();
@@ -175,41 +205,74 @@ fn agregar_medicamento(path: &Path) {
 
 fn consultar_precio(path: &Path) {
     let mut codigo: String = String::new();
-    println!("Escriba el CÓDIGO del medicamento");
+    let text:String = open_file(path);
+    let mut existen: bool = false;
+
+    println!("Escriba el CODIGO del medicamento:");
     stdin().read_line(&mut codigo).unwrap();
-    codigo = codigo.to_uppercase();
-    let text: String = open_file(path);
-    let mut es_medicamento = false;
-    //
-    for a in text.split("\n") {
-        let mut contador = 0;
-        es_medicamento = false;
-        for b in a.split(":") {
-            if contador == 0 && b == codigo.trim() {
-                es_medicamento = true;
-            }
-            if contador == 3 && es_medicamento {
-                println!("\nEl precio es: ${}\n", b)
-            }
-            contador += 1;
-        }
-        if es_medicamento {
+    println!("");
+
+    for linea in text.split("\n") {
+        let med = crear_structure_med(linea);
+
+        if med.codigo == codigo.trim().to_uppercase() {
+            existen = true;
+            imprimir_medicamento(med);
             break
         }
     }
-    if !es_medicamento {
-        println!("\nMedicamento no encontrado\n")
+    if !existen {
+        println!("Medicamento no encontrado\n")
     }
 }
 
 
+
 fn listar_laboratorio(path: &Path) {
-    println!("Yametekudasai")
+    let mut laboratorio: String = String::new();
+    let text:String = open_file(path);
+    let mut existen: bool = false;
+
+    println!("Escriba el LABORAT0RIO del medicamento:");
+    stdin().read_line(&mut laboratorio).unwrap();
+    println!("");
+
+    for linea in text.split("\n") {
+        let med = crear_structure_med(linea);
+
+        if med.lab == laboratorio.trim().to_uppercase() {
+            existen = true;
+            imprimir_medicamento(med);
+        }
+    }
+
+    if !existen {
+        println!("Medicamento no encontrado\n")
+    }
 }
 
 
 fn listar_nombre(path: &Path) {
-    println!("Yametekudasai")
+    let mut nombre: String = String::new();
+    let text:String = open_file(path);
+    let mut existen: bool = false;
+
+    println!("Escriba el NOMBRE del medicamento:");
+    stdin().read_line(&mut nombre).unwrap();
+    println!("");
+
+    for linea in text.split("\n") {
+        let med = crear_structure_med(linea);
+
+        if med.nombre == nombre.trim().to_uppercase() {
+            existen = true;
+            imprimir_medicamento(med);
+        }
+    }
+
+    if !existen {
+        println!("Medicamento no encontrado\n")
+    }
 }
 
 
