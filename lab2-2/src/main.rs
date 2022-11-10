@@ -21,14 +21,14 @@ fn read_file(mut file: &File) -> String {
     file.read_to_string(&mut text).unwrap();
     return text
 }
-
+// Lee el archivo y lo devuelve en String
 
 fn create_blank_file(path: &Path){
     let _file = File::create(path).expect("El archivo no pudo crearse");
     println!("El archivo fue creado");
 
 }
-
+// Crea el archivo
 
 fn is_entero_positivo(numero: &str) -> bool {
     for digit in numero.to_string().trim().chars(){
@@ -40,7 +40,7 @@ fn is_entero_positivo(numero: &str) -> bool {
     }
     return true
 }
-
+// Revisa si es un numero entero
 
 fn open_file_to_append(path: &Path) -> File{
     open_file(path);
@@ -50,7 +50,6 @@ fn open_file_to_append(path: &Path) -> File{
         Err(_why) => panic!("No se puede abrir el archivo"),
         Ok(file) => file,
     };
-
     return file
 }
 
@@ -80,12 +79,12 @@ fn menu() -> u32 {
         println!("(4) Listar medicamentos por nombre");
         println!("(0) Salir");
         stdin().read_line(&mut entrada).unwrap();
-
+        //
         if !is_entero_positivo(&entrada) || entrada.trim() == "".to_string() {
             entrada = "".to_string();
             continue
         }
-
+        //
         match entrada.trim().parse().unwrap() {
             0|1|2|3|4 => break,
             _ => entrada = "".to_string()
@@ -100,7 +99,7 @@ fn menu() -> u32 {
 
 fn pedir_medicamento() -> String {
     let mut linea = "".to_string();
-       
+    //
     for i in 0..5 {
         loop {
             let mut temp: String = String::new();
@@ -113,11 +112,11 @@ fn pedir_medicamento() -> String {
                 _ => continue
             };
             stdin().read_line(&mut temp).unwrap();
-
+            //
             if temp.trim() == "".to_string() {
                 continue
             }
-
+            //
             if i == 3 {
                 if is_entero_positivo(&temp) {
                     linea = linea + &format!("{}", &temp.trim());
@@ -126,7 +125,7 @@ fn pedir_medicamento() -> String {
                     continue
                 }
             }
-
+            //
             linea = linea + &format!("{}", &temp.trim().to_uppercase());
             break
         }
@@ -165,7 +164,6 @@ fn agregar_medicamento(path: &Path) {
         let text: String = open_file(path);
         if revisar(&text, &linea) {
             let mut file: File = open_file_to_append(path);
-  
             file.write_all(linea.as_bytes()).unwrap();
             file.write_all(b"\n").unwrap();
             break
@@ -177,13 +175,12 @@ fn agregar_medicamento(path: &Path) {
 
 fn consultar_precio(path: &Path) {
     let mut codigo: String = String::new();
-
     println!("Escriba el CÓDIGO del medicamento");
     stdin().read_line(&mut codigo).unwrap();
     codigo = codigo.to_uppercase();
-
     let text: String = open_file(path);
     let mut es_medicamento = false;
+    //
     for a in text.split("\n") {
         let mut contador = 0;
         es_medicamento = false;
@@ -218,7 +215,7 @@ fn listar_nombre(path: &Path) {
 
 fn main() {
     let path: &Path = Path::new("base_de_datos.txt");
-
+    //
     loop {
         let opcion = menu();
         match opcion {
