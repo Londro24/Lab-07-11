@@ -217,7 +217,7 @@ fn consultar_precio(path: &Path) {
 
         if med.codigo == codigo.trim().to_uppercase() {
             existen = true;
-            println!("Precio: {}", med.precio);
+            imprimir_medicamento(med);
             break
         }
     }
