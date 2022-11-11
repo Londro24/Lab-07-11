@@ -34,7 +34,7 @@ fn open_file(p: &Path) -> String{
 //hace match
 fn match_text(text: &str) -> u32 {
     let mut puntaje: u32 = 0;
-    for a in text.tolowercase().chars() {
+    for a in text.to_lowercase().chars() {
         match a {
             'a'|'e'|'i'|'o'|'u'|'l'|'n'|'r'|'s'|'t'|'ñ'|'á'|'é'|'í'|'ó'|'ú' => puntaje += 1,
             'd'|'g' => puntaje += 2,
@@ -43,10 +43,9 @@ fn match_text(text: &str) -> u32 {
             'k' => puntaje += 5,
             'j'|'x' => puntaje += 8,
             'q'|'z' => puntaje += 10,
-            => continue,
+            _ => continue,
         }
     }
-    println!("");
     return puntaje
 }
 
